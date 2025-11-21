@@ -1,15 +1,17 @@
 {
   "name": "openwechatai-core",
   "version": "1.0.0",
-  "description": "OpenWechatAI 项目管理核心骨架系统",
+  "description": "Wechat-based AI Project Management Core System",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "openwechat": "^1.0.0",
+    "axios": "^1.6.7",
+    "cors": "^2.8.5",
+    "cron": "^2.4.4",
     "express": "^4.19.0",
-    "cors": "^2.8.5"
+    "openwechat": "^1.0.0"
   }
 }
