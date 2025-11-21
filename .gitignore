@@ -1,3 +1,5 @@
 node_modules/
 .env
 backups/
+data/dailyReports/*.tmp
+data/dailyReports/*.log
