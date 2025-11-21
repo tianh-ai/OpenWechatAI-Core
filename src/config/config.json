@@ -1,5 +1,8 @@
 {
   "apiKey": "",
   "nasPath": "",
-  "debug": true
+  "debug": true,
+  "reportTargetType": "group",
+  "reportTargetId": "",
+  "dailySummaryTime": "18:00"
 }

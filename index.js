@@ -76,8 +76,8 @@ async function main() {
     saveJson("data/dailyLogs.json", dailyLogs);
   });
 
-  // ===== 每日 18:00 自动生成日报 =====
-  const [hour, minute] = "18:00".split(":");
+  // ===== 每日自动生成日报 =====
+  const [hour, minute] = (config.dailySummaryTime || "18:00").split(":");
 
   new cron.CronJob(`${minute} ${hour} * * *`, async () => {
     console.log("🟦 开始生成当日工作日报 ...");

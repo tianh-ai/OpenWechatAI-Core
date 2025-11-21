@@ -4,50 +4,53 @@ import path from "path";
 const __dirname = path.resolve();
 
 export const SummaryManager = {
-  collect() {},
-  generate() {},
-  
-  // 新增日报生成功能
-  async generateDailyReport(ai, dailyLogs) {
-    const report = {};
-    
-    for (const [uid, member] of Object.entries(dailyLogs.members)) {
-      // 构造AI提示词
-      let prompt = `请为以下员工生成今日工作日报总结，要求专业、简洁、突出重点：
-员工姓名：${member.name}
-今日聊天记录：
-`;
-      
-      // 添加聊天记录
-      for (const msg of member.messages) {
-        prompt += `- ${msg.text}\n`;
-      }
-      
-      // 调用AI生成总结
-      const summary = await ai(prompt);
-      
-      report[uid] = {
-        name: member.name,
-        summary: summary
+
+  collect(dailyLogs) {
+    let result = {};
+    for (const [uid, info] of Object.entries(dailyLogs.members || {})) {
+      const text = (info.messages || [])
+        .map(m => m.text)
+        .join("\n");
+
+      result[uid] = {
+        name: info.name || uid,
+        text
       };
     }
-    
-    return report;
+    return result;
   },
-  
-  // 保存日报到文件
-  saveDailyReport(report) {
-    const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `report-${dateStr}.json`;
-    const filepath = path.join(__dirname, 'data', 'dailyReports', filename);
-    
-    // 确保目录存在
-    const dir = path.dirname(filepath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+
+  async generateDailyReport(aiFunc, dailyLogs) {
+    const collected = this.collect(dailyLogs);
+    let final = {};
+
+    for (const [uid, item] of Object.entries(collected)) {
+      const prompt = `
+你是一名工程项目AI助手，请根据以下聊天内容生成【工作日报】：
+
+要求：
+1. 今日完成内容（重点）
+2. 遇到的问题/风险
+3. 沟通情况
+4. 明日计划（如可判断）
+
+聊天内容：
+${item.text}
+`;
+
+      const summary = await aiFunc(prompt, "summary");
+      final[uid] = {
+        name: item.name,
+        summary
+      };
     }
-    
-    fs.writeFileSync(filepath, JSON.stringify(report, null, 2));
-    return filepath;
+    return final;
+  },
+
+  saveDailyReport(report) {
+    const day = new Date().toISOString().slice(0,10);
+    const file = path.join(__dirname, "data/dailyReports", day + ".json");
+    fs.writeFileSync(file, JSON.stringify(report, null, 2));
+    return file;
   }
 };
