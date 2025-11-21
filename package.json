@@ -1,0 +1,15 @@
+{
+  "name": "openwechatai-core",
+  "version": "1.0.0",
+  "description": "OpenWechatAI 项目管理核心骨架系统",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "openwechat": "^1.0.0",
+    "express": "^4.19.0",
+    "cors": "^2.8.5"
+  }
+}
