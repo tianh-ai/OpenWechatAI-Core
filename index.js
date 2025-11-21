@@ -1,10 +1,11 @@
-import { WechatBot } from "openwechat";
+import { WechatyBuilder } from "wechaty";
 import { startWebServer } from "./src/web/server.js";
 import cron from "cron";
 import fs from "fs";
 import path from "path";
 import axios from "axios";
 import { SummaryManager } from "./src/modules/summaryManager.js";
+import qrTerm from "qrcode-terminal";
 
 const __dirname = path.resolve();
 
@@ -39,21 +40,30 @@ async function main() {
 
   startWebServer();
 
-  const bot = new WechatBot({ debug: true });
+  const options = {
+    name: "OpenWechatAI-Core"
+  };
 
-  bot.on("scan", (qrcode) => {
-    console.log("请扫描二维码登录：", qrcode);
+  const bot = WechatyBuilder.build(options);
+
+  bot.on("scan", (qrcode, status) => {
+    console.log("请扫描二维码登录：", status);
+    qrTerm.generate(qrcode, { small: true });
   });
 
   bot.on("login", (user) => {
-    console.log("登录成功：", user);
+    console.log("登录成功：", user.name());
+  });
+
+  bot.on("logout", (user) => {
+    console.log("登出：", user.name());
   });
 
   bot.on("message", async (msg) => {
-    const text = msg.content || "";
+    const text = msg.text();
     const talker = msg.talker();
-    const senderName = talker ? talker.name() : "";
-    const senderId = talker ? talker.id : "";
+    const senderName = talker.name();
+    const senderId = talker.id;
     const room = msg.room();
     const groupId = room ? room.id : null;
     const groupName = room ? await room.topic() : null;
