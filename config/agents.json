@@ -1,0 +1,20 @@
+{
+  "daily_report_agent": {
+    "name": "日报生成代理",
+    "model": "deepseek-chat",
+    "prompt_template": "请为以下员工生成今日工作日报总结：\n员工姓名：{name}\n今日聊天记录：\n{messages}",
+    "enabled": true
+  },
+  "task_analysis_agent": {
+    "name": "任务分析代理",
+    "model": "deepseek-chat",
+    "prompt_template": "请分析以下任务信息并提供优化建议：\n{task_info}",
+    "enabled": true
+  },
+  "material_price_agent": {
+    "name": "材料价格分析代理",
+    "model": "deepseek-chat",
+    "prompt_template": "请分析以下材料价格信息并提供趋势预测：\n{price_info}",
+    "enabled": true
+  }
+}
