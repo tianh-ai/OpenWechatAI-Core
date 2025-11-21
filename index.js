@@ -47,7 +47,13 @@ async function main() {
   const bot = WechatyBuilder.build(options);
 
   bot.on("scan", (qrcode, status) => {
-    console.log("请扫描二维码登录：", status);
+    console.log("请扫描二维码登录：");
+    console.log("二维码状态:", status);
+    // 使用简单的文本输出二维码URL
+    const qrcodeUrl = "https://wechaty.js.org/qrcode/" + encodeURIComponent(qrcode);
+    console.log("如果二维码显示不正常，请访问以下链接：");
+    console.log(qrcodeUrl);
+    // 同时显示二维码
     qrTerm.generate(qrcode, { small: true });
   });
 
