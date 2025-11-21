@@ -1,138 +1,93 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-Agent Manager for OpenWechatAI
-管理AI代理的创建、配置和协调
-"""
-
-import json
-import os
-from typing import Dict, Any, Optional
+from autogen_agentchat.agents import UserProxyAgent, AssistantAgent
+from autogen_agentchat.teams import RoundRobinGroupChat
 
 
 class AgentManager:
-    """AI代理管理器"""
-    
-    def __init__(self, config_path: str = "config/agents.json"):
-        """
-        初始化代理管理器
-        
-        Args:
-            config_path: 代理配置文件路径
-        """
-        self.config_path = config_path
-        self.agents: Dict[str, Any] = {}
-        self.load_config()
-    
-    def load_config(self) -> None:
-        """加载代理配置"""
-        try:
-            if os.path.exists(self.config_path):
-                with open(self.config_path, 'r', encoding='utf-8') as f:
-                    self.agents = json.load(f)
-            else:
-                # 默认配置
-                self.agents = {
-                    "daily_report_agent": {
-                        "name": "日报生成代理",
-                        "model": "deepseek-chat",
-                        "prompt_template": "请为以下员工生成今日工作日报总结：\n员工姓名：{name}\n今日聊天记录：\n{messages}",
-                        "enabled": True
-                    },
-                    "task_analysis_agent": {
-                        "name": "任务分析代理",
-                        "model": "deepseek-chat",
-                        "prompt_template": "请分析以下任务信息并提供优化建议：\n{task_info}",
-                        "enabled": True
-                    }
-                }
-                self.save_config()
-        except Exception as e:
-            print(f"加载配置时出错: {e}")
-            self.agents = {}
-    
-    def save_config(self) -> None:
-        """保存代理配置"""
-        try:
-            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(self.agents, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            print(f"保存配置时出错: {e}")
-    
-    def create_agent(self, agent_id: str, config: Dict[str, Any]) -> None:
-        """
-        创建新的AI代理
-        
-        Args:
-            agent_id: 代理ID
-            config: 代理配置
-        """
-        self.agents[agent_id] = config
-        self.save_config()
-    
-    def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
-        """
-        获取代理配置
-        
-        Args:
-            agent_id: 代理ID
-            
-        Returns:
-            代理配置或None
-        """
-        return self.agents.get(agent_id)
-    
-    def update_agent(self, agent_id: str, config: Dict[str, Any]) -> bool:
-        """
-        更新代理配置
-        
-        Args:
-            agent_id: 代理ID
-            config: 新的配置
-            
-        Returns:
-            更新是否成功
-        """
-        if agent_id in self.agents:
-            self.agents[agent_id].update(config)
-            self.save_config()
-            return True
-        return False
-    
-    def delete_agent(self, agent_id: str) -> bool:
-        """
-        删除代理
-        
-        Args:
-            agent_id: 代理ID
-            
-        Returns:
-            删除是否成功
-        """
-        if agent_id in self.agents:
-            del self.agents[agent_id]
-            self.save_config()
-            return True
-        return False
-    
-    def list_agents(self) -> Dict[str, Any]:
-        """
-        列出所有代理
-        
-        Returns:
-            所有代理配置
-        """
-        return self.agents.copy()
+    """
+    AutoGen 多智能体调度器：
+    - 统一管理 Planner / Logic / Doc / Reply / Memory / Image Agents
+    - 根据微信群聊/私聊消息分配任务
+    - 执行多轮对话直到生成最佳回复
+    """
 
+    def __init__(self):
+        # ---- 载入模型配置 ----
+        self.llm_config_deepseek = {
+            "config_list": [{
+                "model": "deepseek-reasoner",
+                "api_key": "your-deepseek-api-key"  # 需要从配置中获取
+            }],
+            "temperature": 0.3,
+        }
 
-# 示例使用
+        self.llm_config_qwen = {
+            "config_list": [{
+                "model": "qwen2.5-72b-instruct",
+                "api_key": "your-qwen-api-key"  # 需要从配置中获取
+            }],
+            "temperature": 0.3,
+        }
+
+        # ---- 初始化 Agents ----
+        self.planner = AssistantAgent(
+            name="planner",
+            llm_config=self.llm_config_deepseek,
+            system_message="你是一个规划代理，负责制定任务计划。"
+        )
+        
+        self.logic_agent = AssistantAgent(
+            name="logic_agent",
+            llm_config=self.llm_config_qwen,
+            system_message="你是一个逻辑代理，负责处理逻辑推理任务。"
+        )
+        
+        self.doc_agent = AssistantAgent(
+            name="doc_agent",
+            llm_config=self.llm_config_qwen,
+            system_message="你是一个文档代理，负责处理文档相关任务。"
+        )
+        
+        self.reply_agent = AssistantAgent(
+            name="reply_agent",
+            llm_config=self.llm_config_deepseek,
+            system_message="你是一个回复代理，负责生成最终回复。"
+        )
+        
+        self.memory_agent = AssistantAgent(
+            name="memory_agent",
+            llm_config=self.llm_config_deepseek,
+            system_message="你是一个记忆代理，负责管理对话历史。"
+        )
+        
+        self.image_agent = AssistantAgent(
+            name="image_agent",
+            llm_config=self.llm_config_qwen,
+            system_message="你是一个图像代理，负责处理图像相关任务。"
+        )
+
+        # 用于用户输入
+        self.user_proxy = UserProxyAgent(
+            name="user",
+            code_execution_config=False
+        )
+
+        # ---- 构建 GroupChat ----
+        # 使用RoundRobinGroupChat作为替代
+        self.group_chat = RoundRobinGroupChat(
+            [self.user_proxy, self.planner, self.logic_agent, self.doc_agent, 
+             self.reply_agent, self.memory_agent, self.image_agent],
+            max_turns=12
+        )
+
+    # 主调用入口
+    def chat(self, user_message: str):
+        """
+        微信消息 → 多智能体 → 自动回复内容
+        """
+        # 在新版本中，我们直接调用group_chat.run()
+        result = self.group_chat.run(user_message)
+        return result
+
+# 简单测试
 if __name__ == "__main__":
-    # 创建代理管理器实例
-    manager = AgentManager()
-    
-    # 显示所有代理
-    print("当前代理列表:")
-    for agent_id, config in manager.list_agents().items():
-        print(f"- {agent_id}: {config['name']}")
+    print("AgentManager class defined successfully")
