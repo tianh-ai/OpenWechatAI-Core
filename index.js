@@ -59,6 +59,18 @@ async function main() {
 
   bot.on("login", (user) => {
     console.log("登录成功：", user.name());
+    // 登录后显示群组信息
+    setTimeout(async () => {
+      const rooms = await bot.Room.findAll();
+      console.log("\n=== 您加入的微信群组 ===");
+      for (const room of rooms) {
+        const topic = await room.topic();
+        console.log(`群组名称: ${topic}`);
+        console.log(`群组ID: ${room.id}`);
+        console.log("---");
+      }
+      console.log("请将需要的群组ID添加到配置文件中\n");
+    }, 3000);
   });
 
   bot.on("logout", (user) => {
@@ -73,6 +85,19 @@ async function main() {
     const room = msg.room();
     const groupId = room ? room.id : null;
     const groupName = room ? await room.topic() : null;
+
+    // 处理特殊命令
+    if (text === "群组列表") {
+      const rooms = await bot.Room.findAll();
+      let reply = "=== 您加入的微信群组 ===\n";
+      for (const room of rooms) {
+        const topic = await room.topic();
+        reply += `群组名称: ${topic}\n`;
+        reply += `群组ID: ${room.id}\n---\n`;
+      }
+      await msg.say(reply);
+      return;
+    }
 
     if (!senderId) return;
 
