@@ -1,0 +1,82 @@
+# 企业通信MCP配置文件
+# 支持企业微信、飞书、钉钉三大平台
+
+# ==================== 企业微信配置 ====================
+wework:
+  enabled: false  # 是否启用
+  type: app  # webhook 或 app
+  
+  # Webhook方式（群机器人）
+  webhook_url: ""
+  
+  # App方式（企业应用）
+  corp_id: ""
+  corp_secret: ""
+  agent_id: ""
+  token: ""  # 回调Token
+  encoding_aes_key: ""  # 回调加密密钥
+  
+  # 其他配置
+  auto_reply: true  # 是否启用自动回复
+  reply_delay: 1  # 回复延迟（秒）
+
+# ==================== 飞书配置 ====================
+feishu:
+  enabled: false
+  type: app  # webhook 或 app
+  
+  # Webhook方式（群机器人）
+  webhook_url: ""
+  secret: ""  # 签名密钥
+  
+  # App方式（自建应用）
+  app_id: ""
+  app_secret: ""
+  verification_token: ""  # 事件订阅验证Token
+  encrypt_key: ""  # 事件订阅加密Key
+  
+  # 其他配置
+  auto_reply: true
+  reply_delay: 1
+
+# ==================== 钉钉配置 ====================
+dingtalk:
+  enabled: false
+  type: app  # webhook 或 app
+  
+  # Webhook方式（群机器人）
+  webhook_url: ""
+  secret: ""  # 加签密钥
+  
+  # App方式（企业内部应用）
+  app_key: ""
+  app_secret: ""
+  agent_id: ""
+  
+  # 其他配置
+  auto_reply: true
+  reply_delay: 1
+
+# ==================== 全局配置 ====================
+global:
+  # 服务器配置
+  server:
+    host: 0.0.0.0
+    port: 8000
+    debug: false
+  
+  # 回调URL配置（需要公网可访问）
+  callback_domain: "https://your-domain.com"
+  
+  # 日志配置
+  logging:
+    level: INFO
+    file: logs/enterprise_comm_mcp.log
+  
+  # 规则引擎
+  reply_rules_file: config/reply_rules.yaml
+  
+  # 安全配置
+  security:
+    api_key: ""  # API访问密钥（留空则不验证）
+    allowed_ips: []  # 允许的IP列表（留空则不限制）

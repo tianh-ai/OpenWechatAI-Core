@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业通信MCP配置面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .status-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .status-item {
+            display: inline-block;
+            margin-right: 30px;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .status-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-dot.active {
+            background: #10b981;
+        }
+        
+        .status-dot.inactive {
+            background: #ef4444;
+        }
+        
+        .platforms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .platform-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .platform-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .platform-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .platform-logo {
+            font-size: 36px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #10b981;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-test {
+            background: #f59e0b;
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .actions {
+            display: flex;
+            margin-top: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 企业通信MCP配置面板</h1>
+            <p>统一管理企业微信、飞书、钉钉机器人配置</p>
+        </div>
+        
+        <div id="alert" class="alert"></div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">服务状态</div>
+                <div class="status-value">
+                    <span class="status-dot active"></span>
+                    运行中
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">企业微信</div>
+                <div class="status-value" id="status-wework">
+                    <span class="status-dot inactive"></span>
+                    未配置
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">飞书</div>
+                <div class="status-value" id="status-feishu">
+                    <span class="status-dot inactive"></span>
+                    未配置
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">钉钉</div>
+                <div class="status-value" id="status-dingtalk">
+                    <span class="status-dot inactive"></span>
+                    未配置
+                </div>
+            </div>
+        </div>
+        
+        <div class="platforms">
+            <!-- 企业微信 -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div>
+                        <div class="platform-title">企业微信</div>
+                        <div class="platform-logo">💬</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wework-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">机器人类型</label>
+                    <select class="form-select" id="wework-type">
+                        <option value="webhook">群机器人 (Webhook)</option>
+                        <option value="app">企业应用</option>
+                    </select>
+                </div>
+                
+                <div id="wework-webhook-config">
+                    <div class="form-group">
+                        <label class="form-label">Webhook URL</label>
+                        <input type="text" class="form-input" id="wework-webhook-url" placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=...">
+                    </div>
+                </div>
+                
+                <div id="wework-app-config" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">企业ID (CorpId)</label>
+                        <input type="text" class="form-input" id="wework-corp-id" placeholder="ww1234567890abcdef">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">应用Secret</label>
+                        <input type="password" class="form-input" id="wework-corp-secret" placeholder="应用的Secret">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">应用ID (AgentId)</label>
+                        <input type="text" class="form-input" id="wework-agent-id" placeholder="1000001">
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveConfig('wework')">保存配置</button>
+                    <button class="btn btn-test" onclick="testPlatform('wework')">测试发送</button>
+                </div>
+            </div>
+            
+            <!-- 飞书 -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div>
+                        <div class="platform-title">飞书</div>
+                        <div class="platform-logo">🚀</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="feishu-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">机器人类型</label>
+                    <select class="form-select" id="feishu-type">
+                        <option value="webhook">群机器人 (Webhook)</option>
+                        <option value="app">自建应用</option>
+                    </select>
+                </div>
+                
+                <div id="feishu-webhook-config">
+                    <div class="form-group">
+                        <label class="form-label">Webhook URL</label>
+                        <input type="text" class="form-input" id="feishu-webhook-url" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">签名密钥 (可选)</label>
+                        <input type="password" class="form-input" id="feishu-secret" placeholder="签名密钥">
+                    </div>
+                </div>
+                
+                <div id="feishu-app-config" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">App ID</label>
+                        <input type="text" class="form-input" id="feishu-app-id" placeholder="cli_xxx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">App Secret</label>
+                        <input type="password" class="form-input" id="feishu-app-secret" placeholder="应用的Secret">
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveConfig('feishu')">保存配置</button>
+                    <button class="btn btn-test" onclick="testPlatform('feishu')">测试发送</button>
+                </div>
+            </div>
+            
+            <!-- 钉钉 -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div>
+                        <div class="platform-title">钉钉</div>
+                        <div class="platform-logo">📱</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="dingtalk-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">机器人类型</label>
+                    <select class="form-select" id="dingtalk-type">
+                        <option value="webhook">群机器人 (Webhook)</option>
+                        <option value="app">企业内部应用</option>
+                    </select>
+                </div>
+                
+                <div id="dingtalk-webhook-config">
+                    <div class="form-group">
+                        <label class="form-label">Webhook URL</label>
+                        <input type="text" class="form-input" id="dingtalk-webhook-url" placeholder="https://oapi.dingtalk.com/robot/send?access_token=...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">加签密钥 (可选)</label>
+                        <input type="password" class="form-input" id="dingtalk-secret" placeholder="加签密钥">
+                    </div>
+                </div>
+                
+                <div id="dingtalk-app-config" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">App Key</label>
+                        <input type="text" class="form-input" id="dingtalk-app-key" placeholder="dingxxx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">App Secret</label>
+                        <input type="password" class="form-input" id="dingtalk-app-secret" placeholder="应用的Secret">
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveConfig('dingtalk')">保存配置</button>
+                    <button class="btn btn-test" onclick="testPlatform('dingtalk')">测试发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/api/config`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const config = result.data;
+                    
+                    // 企业微信
+                    if (config.wework) {
+                        document.getElementById('wework-enabled').checked = config.wework.enabled || false;
+                        document.getElementById('wework-type').value = config.wework.type || 'webhook';
+                        document.getElementById('wework-webhook-url').value = config.wework.webhook_url || '';
+                        document.getElementById('wework-corp-id').value = config.wework.corp_id || '';
+                        document.getElementById('wework-corp-secret').value = config.wework.corp_secret || '';
+                        document.getElementById('wework-agent-id').value = config.wework.agent_id || '';
+                    }
+                    
+                    // 飞书
+                    if (config.feishu) {
+                        document.getElementById('feishu-enabled').checked = config.feishu.enabled || false;
+                        document.getElementById('feishu-type').value = config.feishu.type || 'webhook';
+                        document.getElementById('feishu-webhook-url').value = config.feishu.webhook_url || '';
+                        document.getElementById('feishu-secret').value = config.feishu.secret || '';
+                        document.getElementById('feishu-app-id').value = config.feishu.app_id || '';
+                        document.getElementById('feishu-app-secret').value = config.feishu.app_secret || '';
+                    }
+                    
+                    // 钉钉
+                    if (config.dingtalk) {
+                        document.getElementById('dingtalk-enabled').checked = config.dingtalk.enabled || false;
+                        document.getElementById('dingtalk-type').value = config.dingtalk.type || 'webhook';
+                        document.getElementById('dingtalk-webhook-url').value = config.dingtalk.webhook_url || '';
+                        document.getElementById('dingtalk-secret').value = config.dingtalk.secret || '';
+                        document.getElementById('dingtalk-app-key').value = config.dingtalk.app_key || '';
+                        document.getElementById('dingtalk-app-secret').value = config.dingtalk.app_secret || '';
+                    }
+                    
+                    updateStatus();
+                }
+            } catch (error) {
+                showAlert('加载配置失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 保存配置
+        async function saveConfig(platform) {
+            const config = {};
+            
+            if (platform === 'wework') {
+                config.enabled = document.getElementById('wework-enabled').checked;
+                config.type = document.getElementById('wework-type').value;
+                config.webhook_url = document.getElementById('wework-webhook-url').value;
+                config.corp_id = document.getElementById('wework-corp-id').value;
+                config.corp_secret = document.getElementById('wework-corp-secret').value;
+                config.agent_id = document.getElementById('wework-agent-id').value;
+            } else if (platform === 'feishu') {
+                config.enabled = document.getElementById('feishu-enabled').checked;
+                config.type = document.getElementById('feishu-type').value;
+                config.webhook_url = document.getElementById('feishu-webhook-url').value;
+                config.secret = document.getElementById('feishu-secret').value;
+                config.app_id = document.getElementById('feishu-app-id').value;
+                config.app_secret = document.getElementById('feishu-app-secret').value;
+            } else if (platform === 'dingtalk') {
+                config.enabled = document.getElementById('dingtalk-enabled').checked;
+                config.type = document.getElementById('dingtalk-type').value;
+                config.webhook_url = document.getElementById('dingtalk-webhook-url').value;
+                config.secret = document.getElementById('dingtalk-secret').value;
+                config.app_key = document.getElementById('dingtalk-app-key').value;
+                config.app_secret = document.getElementById('dingtalk-app-secret').value;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${platform}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`${platform} 配置保存成功！`, 'success');
+                    updateStatus();
+                } else {
+                    showAlert(`保存失败: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showAlert('保存配置失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 测试发送
+        async function testPlatform(platform) {
+            try {
+                const response = await fetch(`${API_BASE}/api/send/${platform}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        content: `测试消息 - ${new Date().toLocaleString()}`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`${platform} 测试消息发送成功！`, 'success');
+                } else {
+                    showAlert(`发送失败: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showAlert('发送失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 更新状态
+        async function updateStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/status`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const platforms = result.data.platforms;
+                    
+                    updatePlatformStatus('wework', platforms.wework);
+                    updatePlatformStatus('feishu', platforms.feishu);
+                    updatePlatformStatus('dingtalk', platforms.dingtalk);
+                }
+            } catch (error) {
+                console.error('更新状态失败:', error);
+            }
+        }
+        
+        function updatePlatformStatus(platform, status) {
+            const element = document.getElementById(`status-${platform}`);
+            const dot = element.querySelector('.status-dot');
+            
+            if (status.enabled && status.initialized) {
+                dot.className = 'status-dot active';
+                element.innerHTML = `<span class="status-dot active"></span>运行中`;
+            } else if (status.enabled) {
+                dot.className = 'status-dot inactive';
+                element.innerHTML = `<span class="status-dot inactive"></span>已配置`;
+            } else {
+                dot.className = 'status-dot inactive';
+                element.innerHTML = `<span class="status-dot inactive"></span>未配置`;
+            }
+        }
+        
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            
+            setTimeout(() => {
+                alert.className = 'alert';
+            }, 5000);
+        }
+        
+        // 切换配置显示
+        document.querySelectorAll('[id$="-type"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const platform = this.id.replace('-type', '');
+                const webhookConfig = document.getElementById(`${platform}-webhook-config`);
+                const appConfig = document.getElementById(`${platform}-app-config`);
+                
+                if (this.value === 'webhook') {
+                    webhookConfig.style.display = 'block';
+                    appConfig.style.display = 'none';
+                } else {
+                    webhookConfig.style.display = 'none';
+                    appConfig.style.display = 'block';
+                }
+            });
+        });
+        
+        // 页面加载时加载配置
+        window.addEventListener('load', () => {
+            loadConfig();
+            setInterval(updateStatus, 10000);  // 每10秒更新状态
+        });
+    </script>
+</body>
+</html>
