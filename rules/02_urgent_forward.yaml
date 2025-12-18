@@ -1,0 +1,13 @@
+# 规则示例 - 关键词转发
+name: "紧急消息转发"
+description: "将包含紧急关键词的消息转发给管理员"
+priority: 20
+enabled: true
+
+if:
+  content_contains: "紧急"
+
+then:
+  action: "forward"
+  target: "admin_user_id"
+  message_template: "【转发】来自 {sender}: {content}"

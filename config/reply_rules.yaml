@@ -1,0 +1,93 @@
+# 智能回复规则配置文件
+# 支持基于关键词、时间段、联系人的条件回复
+
+rules:
+  # 规则1: 工作时间自动回复
+  - name: "工作时间回复"
+    enabled: true
+    conditions:
+      time_range:
+        - start: "09:00"
+          end: "18:00"
+      weekdays: [1, 2, 3, 4, 5]  # 周一到周五
+    actions:
+      - type: "reply"
+        message: "收到您的消息，工作时间会尽快回复！"
+  
+  # 规则2: 休息时间
+  - name: "休息时间回复"
+    enabled: true
+    conditions:
+      time_range:
+        - start: "22:00"
+          end: "08:00"
+    actions:
+      - type: "reply"
+        message: "现在是休息时间，明天会回复您~"
+  
+  # 规则3: 关键词自动回复
+  - name: "常见问题自动回复"
+    enabled: true
+    conditions:
+      keywords:
+        - pattern: "价格|多少钱|费用"
+          reply: "关于价格信息，请查看我们的官网或联系客服"
+        - pattern: "地址|位置|在哪"
+          reply: "我们的地址是..."
+        - pattern: "营业时间|工作时间"
+          reply: "营业时间：周一至周五 9:00-18:00"
+  
+  # 规则4: 问候语回复
+  - name: "问候语识别"
+    enabled: true
+    conditions:
+      keywords:
+        - pattern: "你好|您好|hello|hi"
+          reply: "你好！有什么可以帮助你的吗？"
+        - pattern: "谢谢|感谢|thanks"
+          reply: "不客气！很高兴能帮到你~"
+        - pattern: "再见|拜拜|bye"
+          reply: "再见！祝你愉快！"
+  
+  # 规则5: 特定联系人规则
+  - name: "VIP客户特殊回复"
+    enabled: false
+    conditions:
+      contacts:
+        - "张总"
+        - "李经理"
+    actions:
+      - type: "reply"
+        message: "您好！我会优先处理您的消息"
+  
+  # 规则6: 语音消息处理
+  - name: "语音消息回复"
+    enabled: true
+    conditions:
+      message_type: "voice"
+    actions:
+      - type: "reply"
+        message: "收到您的语音，请稍后，我会尽快回复"
+  
+  # 规则7: 图片消息处理
+  - name: "图片消息回复"
+    enabled: true
+    conditions:
+      message_type: "image"
+    actions:
+      - type: "reply"
+        message: "收到图片"
+
+# 默认回复（当没有规则匹配时）
+default_reply:
+  enabled: true
+  message: "收到您的消息，稍后回复"
+
+# 黑名单（不自动回复）
+blacklist:
+  - "广告"
+  - "推销"
+
+# 白名单（优先回复）
+whitelist:
+  - "文件传输助手"

@@ -1,0 +1,12 @@
+# 规则示例 - 自动回复
+name: "智能问候"
+description: "检测到问候语时自动回复"
+priority: 10
+enabled: true
+
+if:
+  content_regex: "^(你好|您好|hi|hello|嗨|在吗|在不在)"
+
+then:
+  action: "auto_reply"
+  message: "您好！我是AI助手，有什么可以帮助您的吗？"

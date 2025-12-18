@@ -1,0 +1,53 @@
+# 应用配置文件
+# 支持个人微信和企业微信
+
+# 当前使用的应用类型：wechat（个人微信）或 wework（企业微信）
+current_app: wechat
+
+# 个人微信配置
+wechat:
+  package_name: com.tencent.mm
+  app_name: 微信
+  ui_elements:
+    # 红点标记（未读消息数字）
+    red_dot: com.tencent.mm:id/h8h
+    # 聊天列表
+    chat_list: com.tencent.mm:id/e5u
+    # 消息输入框
+    message_input: com.tencent.mm:id/aks
+    # 发送按钮
+    send_btn: com.tencent.mm:id/akw
+
+# 企业微信配置
+wework:
+  package_name: com.tencent.wework
+  app_name: 企业微信
+  ui_elements:
+    # 需要根据实际企业微信UI调整
+    # 可以通过 adb shell uiautomator dump 获取
+    red_dot: com.tencent.wework:id/xxx  # 待确认
+    chat_list: com.tencent.wework:id/xxx  # 待确认
+    message_input: com.tencent.wework:id/xxx  # 待确认
+    send_btn: com.tencent.wework:id/xxx  # 待确认
+
+# 坐标配置（百分比，适配不同分辨率）
+coordinates:
+  # 输入框位置（横向百分比，纵向百分比）
+  input_box: [0.40, 0.92]
+  # 发送按钮位置
+  send_button: [0.95, 0.92]
+  # 聊天列表第一项（点击进入最新对话）
+  first_chat: [0.50, 0.20]
+
+# OCR配置
+ocr:
+  # 截图区域（聊天区域，排除输入框）
+  chat_area:
+    top: 0.75      # 从75%高度开始（最新消息）
+    bottom: 0.88   # 到88%高度（输入框上方）
+  # 置信度阈值
+  confidence_threshold: 0.7
+  # OCR引擎：local 或 docker
+  engine: docker
+  # Docker容器名
+  docker_container: bidding_backend

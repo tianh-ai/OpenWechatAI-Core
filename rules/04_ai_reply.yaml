@@ -1,0 +1,15 @@
+# 规则示例 - AI智能回复
+name: "AI客服"
+description: "使用AI模型进行智能回复"
+priority: 1
+enabled: false  # 待AI集成完成后启用
+
+if:
+  platform: "wechat"
+  sender: ".*"  # 匹配所有发送者
+
+then:
+  action: "auto_reply"
+  use_ai: true
+  ai_model: "gpt-4"
+  ai_prompt: "你是一个友好的AI助手，请用简洁的方式回复用户的问题。"

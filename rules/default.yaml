@@ -1,0 +1,10 @@
+# Rule definitions for the bot
+# Example:
+# - if:
+#     platform: "WeChat"
+#     sender: "Boss"
+#     content_contains: "urgent"
+#   then:
+#     action: "notify"
+#     target: "DingTalk"
+#     message: "Urgent message from Boss on WeChat!"

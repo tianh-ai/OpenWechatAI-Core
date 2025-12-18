@@ -1,0 +1,12 @@
+# 规则示例 - 时间范围自动回复
+name: "下班时间自动回复"
+description: "非工作时间自动回复休息提示"
+priority: 5
+enabled: true
+
+if:
+  time_range: "18:00-09:00"
+
+then:
+  action: "auto_reply"
+  message: "您好，现在是非工作时间，我们会在工作时间尽快回复您。工作时间：周一至周五 09:00-18:00"
